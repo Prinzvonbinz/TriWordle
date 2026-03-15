@@ -85,25 +85,24 @@ h1{
   color:#6ec1ff;
   font-size:14px;
 }
-#winscreen{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:#000000dd;
+#resultsBoard{
   display:flex;
-  align-items:center;
-  justify-content:center;
   flex-direction:column;
-  font-size:22px;
-  z-index:999;
+  align-items:center;
 }
-#winscreen button{
-  margin-top:15px;
+#resultsBoard div{
+  margin:6px 0;
+  font-size:18px;
+}
+#restartBtn{
+  margin-top:12px;
   padding:10px 20px;
   font-size:16px;
   cursor:pointer;
+  border:none;
+  border-radius:6px;
+  background:#818384;
+  color:white;
 }
 </style>
 </head>
@@ -113,9 +112,10 @@ h1{
   <h1>TRI WORDLE</h1>
   <div id="timer">420</div>
   <div class="tabs">
-    <button onclick="tab('word')">WORT</button>
-    <button onclick="tab('number')">ZAHL</button>
-    <button onclick="tab('color')">FARBEN</button>
+    <button id="tabWordBtn" onclick="tab('word')">WORT</button>
+    <button id="tabNumberBtn" onclick="tab('number')">ZAHL</button>
+    <button id="tabColorBtn" onclick="tab('color')">FARBEN</button>
+    <button id="tabResultBtn" onclick="tab('result')" class="hidden">ERGEBNIS</button>
   </div>
   <div id="hint"></div>
 
@@ -131,12 +131,10 @@ h1{
     <div id="colorBoard" class="board"></div>
     <div id="colorKeyboard" class="keyboard"></div>
   </div>
-</div>
-
-<div id="winscreen" class="hidden">
-  <h2>Gewonnen!</h2>
-  <div id="stats"></div>
-  <button onclick="location.reload()">Nochmal spielen</button>
+  <div id="resultTab" class="hidden">
+    <div id="resultsBoard"></div>
+    <button id="restartBtn" onclick="restartGame()">Nochmal spielen</button>
+  </div>
 </div>
 
 <script>
@@ -144,6 +142,7 @@ h1{
 let time=420;
 let guesses=0;
 let solved={word:false,number:false,color:false};
+let failed=false;
 
 const words=["TIGER","APFEL","STUHL","LAMPE","WOLKE","FLUSS","SCHUH","BLUME","STEIN","GLASS","TRAUM","WALD"];
 const colors=["ROT","BLAU","GRÜN","GELB","LILA","PINK","ORANGE"];
@@ -156,10 +155,10 @@ let rowWord=0,rowNum=0,rowColor=0;
 let guessWord="",guessNum="",guessColor=[];
 
 // --- Timer ---
-setInterval(()=>{
+let timerInterval=setInterval(()=>{
   time--;
   document.getElementById("timer").innerText=time;
-  if(time<=0){alert("Zeit vorbei!");location.reload();}
+  if(time<=0){endGame(false);}
 },1000);
 
 // --- Tabs ---
@@ -167,12 +166,14 @@ function tab(name){
   document.getElementById("wordTab").classList.add("hidden");
   document.getElementById("numberTab").classList.add("hidden");
   document.getElementById("colorTab").classList.add("hidden");
+  document.getElementById("resultTab").classList.add("hidden");
   if(name==="word") document.getElementById("wordTab").classList.remove("hidden");
   if(name==="number") document.getElementById("numberTab").classList.remove("hidden");
   if(name==="color") document.getElementById("colorTab").classList.remove("hidden");
+  if(name==="result") document.getElementById("resultTab").classList.remove("hidden");
 }
 
-// --- Boards erstellen ---
+// --- Board ---
 function createBoard(board){
   for(let r=0;r<6;r++){
     for(let c=0;c<5;c++){
@@ -210,39 +211,45 @@ function colorCheck(board,row,guess,answer){for(let i=0;i<5;i++){
 
 // --- Wordle Logik ---
 function pressWord(l){
-  if(solved.word) return;
+  if(solved.word || failed) return;
   if(guessWord.length<5){guessWord+=l;update(document.getElementById("wordBoard"),rowWord,guessWord);}
   if(guessWord.length===5){
     guesses++;
     colorCheck(document.getElementById("wordBoard"),rowWord,guessWord.split(""),wordAnswer.split(""));
-    if(guessWord===wordAnswer) solve("word");
-    rowWord++; guessWord="";
+    if(guessWord===wordAnswer) solve("word"); 
+    rowWord++; 
+    guessWord="";
+    if(rowWord>=6 && !solved.word) endGame(false);
   }
 }
 function pressNumber(n){
-  if(solved.number) return;
+  if(solved.number || failed) return;
   if(guessNum.length<5){guessNum+=n;update(document.getElementById("numberBoard"),rowNum,guessNum);}
   if(guessNum.length===5){
     guesses++;
     colorCheck(document.getElementById("numberBoard"),rowNum,guessNum.split(""),numberAnswer.split(""));
-    if(guessNum===numberAnswer) solve("number");
-    rowNum++; guessNum="";
+    if(guessNum===numberAnswer) solve("number"); 
+    rowNum++; 
+    guessNum="";
+    if(rowNum>=6 && !solved.number) endGame(false);
   }
 }
 function pressColor(c){
-  if(solved.color) return;
+  if(solved.color || failed) return;
   if(guessColor.length<5){guessColor.push(c);update(document.getElementById("colorBoard"),rowColor,guessColor);}
   if(guessColor.length===5){
     guesses++;
     colorCheck(document.getElementById("colorBoard"),rowColor,guessColor,colorAnswer);
-    if(JSON.stringify(guessColor)===JSON.stringify(colorAnswer)) solve("color");
-    rowColor++; guessColor=[];
+    if(JSON.stringify(guessColor)===JSON.stringify(colorAnswer)) solve("color"); 
+    rowColor++; 
+    guessColor=[];
+    if(rowColor>=6 && !solved.color) endGame(false);
   }
 }
 
 // --- Lösung & Hinweise ---
 function solve(type){
-  if(solved[type]) return;
+  if(solved[type] || failed) return;
   solved[type]=true;
   time+=45;
   let hintText="";
@@ -250,22 +257,32 @@ function solve(type){
   if(type==="color") hintText="Zahlen-Hinweis: enthält "+numberAnswer[Math.floor(Math.random()*5)];
   if(type==="word") hintText="Farben-Hinweis: enthält "+colorAnswer[Math.floor(Math.random()*5)];
   document.getElementById("hint").innerText=hintText;
-  checkWin();
+  if(solved.word && solved.number && solved.color) endGame(true);
 }
 
-// --- WinScreen ---
-function checkWin(){
-  if(solved.word && solved.number && solved.color){
-    let high=localStorage.getItem("triHigh");
-    let score=time;
-    if(!high || score>high){localStorage.setItem("triHigh",score);high=score;}
-    document.getElementById("stats").innerHTML=
-      "Zeit übrig: "+time+"<br>"+
-      "Versuche: "+guesses+"<br>"+
-      "Highscore: "+high;
-    document.getElementById("winscreen").classList.remove("hidden");
-  }
+// --- Spiel Ende ---
+function endGame(win){
+  failed=!win;
+  // Sperre alle Tabs außer Ergebnis
+  document.getElementById("tabWordBtn").disabled=true;
+  document.getElementById("tabNumberBtn").disabled=true;
+  document.getElementById("tabColorBtn").disabled=true;
+  document.getElementById("tabResultBtn").classList.remove("hidden");
+  // Ergebnis-Tab zeigen
+  tab('result');
+  let results=document.getElementById("resultsBoard");
+  results.innerHTML="";
+  results.innerHTML+="<div>Status: "+(win?"Gewonnen":"Verloren")+"</div>";
+  results.innerHTML+="<div>Zeit übrig: "+time+"</div>";
+  results.innerHTML+="<div>Versuche: "+guesses+"</div>";
+  let high=localStorage.getItem("triHigh");
+  if(win && (!high || time>high)){localStorage.setItem("triHigh",time);high=time;}
+  results.innerHTML+="<div>Highscore: "+high+"</div>";
 }
+
+// --- Neustart ---
+function restartGame(){location.reload();}
 </script>
+
 </body>
 </html>
