@@ -3,411 +3,269 @@
 <head>
 <meta charset="UTF-8">
 <title>TriWordle</title>
-
 <style>
-
 html,body{
-margin:0;
-height:100%;
-background:#121213;
-font-family:Arial, Helvetica, sans-serif;
-display:flex;
-align-items:center;
-justify-content:center;
-overflow:hidden;
-color:white;
+  margin:0;
+  height:100%;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:#121213;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
-
 #game{
-width:420px;
-text-align:center;
+  width:420px;
+  text-align:center;
 }
-
 h1{
-font-size:26px;
-letter-spacing:3px;
-margin-bottom:10px;
+  font-size:26px;
+  letter-spacing:2px;
+  margin-bottom:10px;
 }
-
 #timer{
-font-size:18px;
-margin-bottom:10px;
-color:#d7dadc;
+  font-size:18px;
+  margin-bottom:10px;
+  color:#d7dadc;
 }
-
 .tabs button{
-background:#3a3a3c;
-border:none;
-color:white;
-padding:8px 14px;
-margin:4px;
-border-radius:6px;
-cursor:pointer;
+  background:#3a3a3c;
+  border:none;
+  color:white;
+  padding:8px 14px;
+  margin:4px;
+  border-radius:6px;
+  cursor:pointer;
 }
-
 .tabs button:hover{
-background:#565758;
+  background:#565758;
 }
-
 .board{
-display:grid;
-grid-template-columns:repeat(5,62px);
-gap:6px;
-justify-content:center;
-margin-top:15px;
+  display:grid;
+  grid-template-columns:repeat(5,62px);
+  gap:6px;
+  justify-content:center;
+  margin-top:15px;
 }
-
 .tile{
-width:62px;
-height:62px;
-border:2px solid #3a3a3c;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:28px;
-font-weight:bold;
-text-transform:uppercase;
+  width:62px;
+  height:62px;
+  border:2px solid #3a3a3c;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:28px;
+  font-weight:bold;
+  text-transform:uppercase;
 }
-
 .green{background:#538d4e;border:none;}
 .yellow{background:#b59f3b;border:none;}
 .gray{background:#3a3a3c;border:none;}
-
 .keyboard{
-margin-top:15px;
+  margin-top:15px;
 }
-
 .keyboard button{
-margin:2px;
-padding:10px;
-border:none;
-background:#818384;
-color:white;
-font-weight:bold;
-border-radius:4px;
-cursor:pointer;
+  margin:2px;
+  padding:10px;
+  border:none;
+  background:#818384;
+  color:white;
+  font-weight:bold;
+  border-radius:4px;
+  cursor:pointer;
 }
-
 .keyboard button:hover{
-background:#a1a1a1;
+  background:#a1a1a1;
 }
-
-.hidden{
-display:none;
-}
-
+.hidden{display:none;}
 #hint{
-min-height:24px;
-margin-top:8px;
-color:#6ec1ff;
-font-size:14px;
+  min-height:24px;
+  margin-top:8px;
+  color:#6ec1ff;
+  font-size:14px;
 }
-
 #winscreen{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:#000000dd;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-font-size:22px;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#000000dd;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  font-size:22px;
+  z-index:999;
 }
-
 #winscreen button{
-margin-top:15px;
-padding:10px 20px;
-font-size:16px;
-cursor:pointer;
+  margin-top:15px;
+  padding:10px 20px;
+  font-size:16px;
+  cursor:pointer;
 }
-
 </style>
 </head>
-
 <body>
 
 <div id="game">
+  <h1>TRI WORDLE</h1>
+  <div id="timer">420</div>
+  <div class="tabs">
+    <button onclick="tab('word')">WORT</button>
+    <button onclick="tab('number')">ZAHL</button>
+    <button onclick="tab('color')">FARBEN</button>
+  </div>
+  <div id="hint"></div>
 
-<h1>TRI WORDLE</h1>
-
-<div id="timer">420</div>
-
-<div class="tabs">
-<button onclick="tab('word')">WORT</button>
-<button onclick="tab('number')">ZAHL</button>
-<button onclick="tab('color')">FARBEN</button>
-</div>
-
-<div id="hint"></div>
-
-<div id="wordTab">
-<div id="wordBoard" class="board"></div>
-<div id="wordKeyboard" class="keyboard"></div>
-</div>
-
-<div id="numberTab" class="hidden">
-<div id="numberBoard" class="board"></div>
-<div id="numberKeyboard" class="keyboard"></div>
-</div>
-
-<div id="colorTab" class="hidden">
-<div id="colorBoard" class="board"></div>
-<div id="colorKeyboard" class="keyboard"></div>
-</div>
-
+  <div id="wordTab">
+    <div id="wordBoard" class="board"></div>
+    <div id="wordKeyboard" class="keyboard"></div>
+  </div>
+  <div id="numberTab" class="hidden">
+    <div id="numberBoard" class="board"></div>
+    <div id="numberKeyboard" class="keyboard"></div>
+  </div>
+  <div id="colorTab" class="hidden">
+    <div id="colorBoard" class="board"></div>
+    <div id="colorKeyboard" class="keyboard"></div>
+  </div>
 </div>
 
 <div id="winscreen" class="hidden">
-<h2>Gewonnen!</h2>
-<div id="stats"></div>
-<button onclick="location.reload()">Nochmal spielen</button>
+  <h2>Gewonnen!</h2>
+  <div id="stats"></div>
+  <button onclick="location.reload()">Nochmal spielen</button>
 </div>
 
 <script>
+// --- Variablen ---
+let time=420;
+let guesses=0;
+let solved={word:false,number:false,color:false};
 
-let time=420
-let guesses=0
+const words=["TIGER","APFEL","STUHL","LAMPE","WOLKE","FLUSS","SCHUH","BLUME","STEIN","GLASS","TRAUM","WALD"];
+const colors=["ROT","BLAU","GRÜN","GELB","LILA","PINK","ORANGE"];
 
-let solved={word:false,number:false,color:false}
+let wordAnswer=words[Math.floor(Math.random()*words.length)];
+let numberAnswer=""; for(let i=0;i<5;i++) numberAnswer+=Math.floor(Math.random()*10);
+let colorAnswer=[]; for(let i=0;i<5;i++) colorAnswer.push(colors[Math.floor(Math.random()*colors.length)]);
 
-const words=[
-"TIGER","APFEL","STUHL","LAMPE","WOLKE","FLUSS",
-"SCHUH","BLUME","STEIN","GLASS","TRAUM","WALD"
-]
+let rowWord=0,rowNum=0,rowColor=0;
+let guessWord="",guessNum="",guessColor=[];
 
-const colors=[
-"ROT","BLAU","GRÜN","GELB","LILA","PINK","ORANGE"
-]
-
-let wordAnswer=words[Math.floor(Math.random()*words.length)]
-
-let numberAnswer=""
-for(let i=0;i<5;i++) numberAnswer+=Math.floor(Math.random()*10)
-
-let colorAnswer=[]
-for(let i=0;i<5;i++)
-colorAnswer.push(colors[Math.floor(Math.random()*colors.length)])
-
-function tab(name){
-
-wordTab.classList.add("hidden")
-numberTab.classList.add("hidden")
-colorTab.classList.add("hidden")
-
-if(name==="word")wordTab.classList.remove("hidden")
-if(name==="number")numberTab.classList.remove("hidden")
-if(name==="color")colorTab.classList.remove("hidden")
-
-}
-
+// --- Timer ---
 setInterval(()=>{
+  time--;
+  document.getElementById("timer").innerText=time;
+  if(time<=0){alert("Zeit vorbei!");location.reload();}
+},1000);
 
-time--
-timer.innerText=time
-
-if(time<=0){
-
-alert("Zeit vorbei!")
-location.reload()
-
+// --- Tabs ---
+function tab(name){
+  document.getElementById("wordTab").classList.add("hidden");
+  document.getElementById("numberTab").classList.add("hidden");
+  document.getElementById("colorTab").classList.add("hidden");
+  if(name==="word") document.getElementById("wordTab").classList.remove("hidden");
+  if(name==="number") document.getElementById("numberTab").classList.remove("hidden");
+  if(name==="color") document.getElementById("colorTab").classList.remove("hidden");
 }
 
-},1000)
-
+// --- Boards erstellen ---
 function createBoard(board){
-
-for(let r=0;r<6;r++){
-
-for(let c=0;c<5;c++){
-
-let t=document.createElement("div")
-t.className="tile"
-board.appendChild(t)
-
+  for(let r=0;r<6;r++){
+    for(let c=0;c<5;c++){
+      let t=document.createElement("div");
+      t.className="tile";
+      board.appendChild(t);
+    }
+  }
 }
+createBoard(document.getElementById("wordBoard"));
+createBoard(document.getElementById("numberBoard"));
+createBoard(document.getElementById("colorBoard"));
 
-}
-
-}
-
-createBoard(wordBoard)
-createBoard(numberBoard)
-createBoard(colorBoard)
-
+// --- Tastatur ---
 function keyboard(keys,id,press){
-
-keys.forEach(k=>{
-
-let b=document.createElement("button")
-b.innerText=k
-b.onclick=()=>press(k)
-id.appendChild(b)
-
-})
-
+  keys.forEach(k=>{
+    let b=document.createElement("button");
+    b.innerText=k;
+    b.onclick=()=>press(k);
+    id.appendChild(b);
+  });
 }
+keyboard("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),document.getElementById("wordKeyboard"),pressWord);
+keyboard("0123456789".split(""),document.getElementById("numberKeyboard"),pressNumber);
+keyboard(colors,document.getElementById("colorKeyboard"),pressColor);
 
-keyboard("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),wordKeyboard,pressWord)
-keyboard("0123456789".split(""),numberKeyboard,pressNumber)
-keyboard(colors,colorKeyboard,pressColor)
+// --- Board Update & Farbe ---
+function update(board,row,data){for(let i=0;i<data.length;i++) board.children[row*5+i].innerText=data[i];}
+function colorCheck(board,row,guess,answer){for(let i=0;i<5;i++){
+  let tile=board.children[row*5+i];
+  if(guess[i]===answer[i]) tile.classList.add("green");
+  else if(answer.includes(guess[i])) tile.classList.add("yellow");
+  else tile.classList.add("gray");
+}}
 
-let rowWord=0,rowNum=0,rowColor=0
-let guessWord="",guessNum="",guessColor=[]
-
-function update(board,row,data){
-
-for(let i=0;i<data.length;i++)
-board.children[row*5+i].innerText=data[i]
-
-}
-
-function colorCheck(board,row,guess,answer){
-
-for(let i=0;i<5;i++){
-
-let tile=board.children[row*5+i]
-
-if(guess[i]===answer[i]) tile.classList.add("green")
-else if(answer.includes(guess[i])) tile.classList.add("yellow")
-else tile.classList.add("gray")
-
-}
-
-}
-
+// --- Wordle Logik ---
 function pressWord(l){
-
-if(solved.word) return
-
-if(guessWord.length<5){
-
-guessWord+=l
-update(wordBoard,rowWord,guessWord)
-
+  if(solved.word) return;
+  if(guessWord.length<5){guessWord+=l;update(document.getElementById("wordBoard"),rowWord,guessWord);}
+  if(guessWord.length===5){
+    guesses++;
+    colorCheck(document.getElementById("wordBoard"),rowWord,guessWord.split(""),wordAnswer.split(""));
+    if(guessWord===wordAnswer) solve("word");
+    rowWord++; guessWord="";
+  }
 }
-
-if(guessWord.length===5){
-
-guesses++
-
-colorCheck(wordBoard,rowWord,guessWord.split(""),wordAnswer.split(""))
-
-if(guessWord===wordAnswer) solve("word")
-
-rowWord++
-guessWord=""
-
-}
-
-}
-
 function pressNumber(n){
-
-if(solved.number) return
-
-if(guessNum.length<5){
-
-guessNum+=n
-update(numberBoard,rowNum,guessNum)
-
+  if(solved.number) return;
+  if(guessNum.length<5){guessNum+=n;update(document.getElementById("numberBoard"),rowNum,guessNum);}
+  if(guessNum.length===5){
+    guesses++;
+    colorCheck(document.getElementById("numberBoard"),rowNum,guessNum.split(""),numberAnswer.split(""));
+    if(guessNum===numberAnswer) solve("number");
+    rowNum++; guessNum="";
+  }
 }
-
-if(guessNum.length===5){
-
-guesses++
-
-colorCheck(numberBoard,rowNum,guessNum.split(""),numberAnswer.split(""))
-
-if(guessNum===numberAnswer) solve("number")
-
-rowNum++
-guessNum=""
-
-}
-
-}
-
 function pressColor(c){
-
-if(solved.color) return
-
-if(guessColor.length<5){
-
-guessColor.push(c)
-update(colorBoard,rowColor,guessColor)
-
+  if(solved.color) return;
+  if(guessColor.length<5){guessColor.push(c);update(document.getElementById("colorBoard"),rowColor,guessColor);}
+  if(guessColor.length===5){
+    guesses++;
+    colorCheck(document.getElementById("colorBoard"),rowColor,guessColor,colorAnswer);
+    if(JSON.stringify(guessColor)===JSON.stringify(colorAnswer)) solve("color");
+    rowColor++; guessColor=[];
+  }
 }
 
-if(guessColor.length===5){
-
-guesses++
-
-colorCheck(colorBoard,rowColor,guessColor,colorAnswer)
-
-if(JSON.stringify(guessColor)===JSON.stringify(colorAnswer))
-solve("color")
-
-rowColor++
-guessColor=[]
-
-}
-
-}
-
+// --- Lösung & Hinweise ---
 function solve(type){
-
-if(solved[type]) return
-
-solved[type]=true
-time+=45
-
-let hintText=""
-
-if(type==="number")
-hintText="Wort-Hinweis: Buchstabe "+(Math.floor(Math.random()*5)+1)
-
-if(type==="color")
-hintText="Zahlen-Hinweis: enthält "+numberAnswer[Math.floor(Math.random()*5)]
-
-if(type==="word")
-hintText="Farben-Hinweis: enthält "+colorAnswer[Math.floor(Math.random()*5)]
-
-hint.innerText=hintText
-
-checkWin()
-
+  if(solved[type]) return;
+  solved[type]=true;
+  time+=45;
+  let hintText="";
+  if(type==="number") hintText="Wort-Hinweis: Buchstabe "+(Math.floor(Math.random()*5)+1);
+  if(type==="color") hintText="Zahlen-Hinweis: enthält "+numberAnswer[Math.floor(Math.random()*5)];
+  if(type==="word") hintText="Farben-Hinweis: enthält "+colorAnswer[Math.floor(Math.random()*5)];
+  document.getElementById("hint").innerText=hintText;
+  checkWin();
 }
 
+// --- WinScreen ---
 function checkWin(){
-
-if(solved.word && solved.number && solved.color){
-
-let high=localStorage.getItem("triHigh")
-
-let score=time
-
-if(!high || score>high){
-
-localStorage.setItem("triHigh",score)
-high=score
-
+  if(solved.word && solved.number && solved.color){
+    let high=localStorage.getItem("triHigh");
+    let score=time;
+    if(!high || score>high){localStorage.setItem("triHigh",score);high=score;}
+    document.getElementById("stats").innerHTML=
+      "Zeit übrig: "+time+"<br>"+
+      "Versuche: "+guesses+"<br>"+
+      "Highscore: "+high;
+    document.getElementById("winscreen").classList.remove("hidden");
+  }
 }
-
-stats.innerHTML=
-"Zeit übrig: "+time+"<br>"+
-"Versuche: "+guesses+"<br>"+
-"Highscore: "+high
-
-winscreen.classList.remove("hidden")
-
-}
-
-}
-
 </script>
-
 </body>
 </html>
