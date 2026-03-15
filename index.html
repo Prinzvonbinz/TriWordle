@@ -12,7 +12,9 @@ html,body{
   display:flex; justify-content:center; align-items:center;
 }
 #game{
-  width:95%; max-width:500px; text-align:center;
+  width:500px; height:700px;
+  text-align:center;
+  transform-origin: top center;
 }
 h1{font-size:32px; letter-spacing:2px; margin:8px 0;}
 #timer{font-size:20px; margin:6px 0; color:#d7dadc;}
@@ -81,6 +83,17 @@ h1{font-size:32px; letter-spacing:2px; margin:8px 0;}
 </div>
 
 <script>
+// --- Automatische Skalierung ---
+function resizeGame(){
+  const game = document.getElementById("game");
+  const scaleW = window.innerWidth / 520;   // Breite Puffer
+  const scaleH = window.innerHeight / 720;  // Höhe Puffer
+  const scale = Math.min(scaleW, scaleH, 1); // nie größer als 100%
+  game.style.transform = "scale(" + scale + ")";
+}
+window.addEventListener("resize", resizeGame);
+resizeGame(); // direkt beim Laden
+
 // --- Variablen ---
 let time=420; let guesses=0; let solved={word:false,number:false,color:false}; let failed=false;
 const words=["TIGER","APFEL","STUHL","LAMPE","WOLKE","FLUSS","SCHUH","BLUME","STEIN","GLASS","TRAUM","WALD"];
