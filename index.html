@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TriWordle</title>
+
+<style>
+
+html,body{
+margin:0;
+height:100%;
+overflow:hidden;
+background:#0f0f10;
+font-family:Arial;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+#game{
+width:420px;
+text-align:center;
+}
+
+h1{
+margin:5px;
+}
+
+#timer{
+font-size:22px;
+margin:10px;
+}
+
+.tabs button{
+padding:8px 14px;
+margin:4px;
+background:#222;
+border:none;
+color:white;
+cursor:pointer;
+border-radius:6px;
+}
+
+.tabs button:hover{
+background:#444;
+}
+
+.board{
+display:grid;
+grid-template-columns:repeat(5,60px);
+gap:5px;
+justify-content:center;
+margin:15px;
+}
+
+.tile{
+width:60px;
+height:60px;
+border:2px solid #333;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:22px;
+font-weight:bold;
+}
+
+.green{background:#538d4e;}
+.yellow{background:#b59f3b;}
+.gray{background:#3a3a3c;}
+
+.keyboard{
+margin-top:10px;
+}
+
+.keyboard button{
+margin:2px;
+padding:8px;
+border:none;
+background:#444;
+color:white;
+cursor:pointer;
+border-radius:4px;
+}
+
+.hidden{
+display:none;
+}
+
+#hintBox{
+margin-top:10px;
+font-size:14px;
+color:#7dd3fc;
+min-height:20px;
+}
+
+#winscreen{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000000dd;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+font-size:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<h1>TRI WORDLE</h1>
+
+<div id="timer">420</div>
+
+<div class="tabs">
+<button onclick="showTab('word')">Wort</button>
+<button onclick="showTab('number')">Zahl</button>
+<button onclick="showTab('color')">Farben</button>
+</div>
+
+<div id="hintBox"></div>
+
+<div id="wordTab">
+<div id="wordBoard" class="board"></div>
+<div id="wordKeyboard" class="keyboard"></div>
+</div>
+
+<div id="numberTab" class="hidden">
+<div id="numberBoard" class="board"></div>
+<div id="numberKeyboard" class="keyboard"></div>
+</div>
+
+<div id="colorTab" class="hidden">
+<div id="colorBoard" class="board"></div>
+<div id="colorKeyboard" class="keyboard"></div>
+</div>
+
+</div>
+
+<div id="winscreen" class="hidden">
+<h2>Gewonnen!</h2>
+<div id="stats"></div>
+<button onclick="location.reload()">Nochmal spielen</button>
+</div>
+
+<script>
+
+let time=420
+let guesses=0
+
+let solved={word:false,number:false,color:false}
+
+let colors=["RED","BLUE","GREEN","YELLOW","ORANGE","PURPLE","PINK"]
+
+let words=[
+"TIGER","APPLE","TRAIN","WATER","STONE","LIGHT",
+"BRAVE","PLANT","CLOUD","SMILE","BREAD","CHAIR"
+]
+
+let wordAnswer=words[Math.floor(Math.random()*words.length)]
+
+let numberAnswer=""
+for(let i=0;i<5;i++)
+numberAnswer+=Math.floor(Math.random()*10)
+
+let colorAnswer=[]
+for(let i=0;i<5;i++)
+colorAnswer.push(colors[Math.floor(Math.random()*colors.length)])
+
+function showTab(t){
+
+wordTab.classList.add("hidden")
+numberTab.classList.add("hidden")
+colorTab.classList.add("hidden")
+
+if(t==="word")wordTab.classList.remove("hidden")
+if(t==="number")numberTab.classList.remove("hidden")
+if(t==="color")colorTab.classList.remove("hidden")
+
+}
+
+setInterval(()=>{
+
+time--
+timer.innerText=time
+
+if(time<=0){
+
+alert("Zeit vorbei!")
+location.reload()
+
+}
+
+},1000)
+
+function createBoard(id){
+
+let b=document.getElementById(id)
+
+for(let i=0;i<5;i++){
+
+let tile=document.createElement("div")
+tile.className="tile"
+b.appendChild(tile)
+
+}
+
+}
+
+createBoard("wordBoard")
+createBoard("numberBoard")
+createBoard("colorBoard")
+
+function createKeyboard(keys,id,handler){
+
+let k=document.getElementById(id)
+
+keys.forEach(key=>{
+
+let b=document.createElement("button")
+b.innerText=key
+b.onclick=()=>handler(key)
+k.appendChild(b)
+
+})
+
+}
+
+createKeyboard("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),"wordKeyboard",pressWord)
+createKeyboard("0123456789".split(""),"numberKeyboard",pressNumber)
+createKeyboard(colors,"colorKeyboard",pressColor)
+
+let wordGuess=""
+let numberGuess=""
+let colorGuess=[]
+
+function pressWord(l){
+
+if(wordGuess.length<5){
+
+wordGuess+=l
+update("wordBoard",wordGuess)
+
+}
+
+if(wordGuess.length===5)checkWord()
+
+}
+
+function pressNumber(n){
+
+if(numberGuess.length<5){
+
+numberGuess+=n
+update("numberBoard",numberGuess)
+
+}
+
+if(numberGuess.length===5)checkNumber()
+
+}
+
+function pressColor(c){
+
+if(colorGuess.length<5){
+
+colorGuess.push(c)
+update("colorBoard",colorGuess)
+
+}
+
+if(colorGuess.length===5)checkColor()
+
+}
+
+function update(boardId,data){
+
+let board=document.getElementById(boardId)
+
+for(let i=0;i<data.length;i++)
+board.children[i].innerText=data[i]
+
+}
+
+function colorCheck(board,guess,answer){
+
+for(let i=0;i<5;i++){
+
+let tile=board.children[i]
+
+if(guess[i]===answer[i])
+tile.classList.add("green")
+
+else if(answer.includes(guess[i]))
+tile.classList.add("yellow")
+
+else
+tile.classList.add("gray")
+
+}
+
+}
+
+function checkWord(){
+
+guesses++
+
+colorCheck(wordBoard,wordGuess.split(""),wordAnswer.split(""))
+
+if(wordGuess===wordAnswer)solve("word")
+
+wordGuess=""
+clearBoard("wordBoard")
+
+}
+
+function checkNumber(){
+
+guesses++
+
+colorCheck(numberBoard,numberGuess.split(""),numberAnswer.split(""))
+
+if(numberGuess===numberAnswer)solve("number")
+
+numberGuess=""
+clearBoard("numberBoard")
+
+}
+
+function checkColor(){
+
+guesses++
+
+colorCheck(colorBoard,colorGuess,colorAnswer)
+
+if(JSON.stringify(colorGuess)===JSON.stringify(colorAnswer))
+solve("color")
+
+colorGuess=[]
+clearBoard("colorBoard")
+
+}
+
+function clearBoard(id){
+
+let b=document.getElementById(id)
+
+for(let i=0;i<5;i++){
+b.children[i].innerText=""
+b.children[i].className="tile"
+}
+
+}
+
+function solve(type){
+
+if(solved[type])return
+
+solved[type]=true
+time+=45
+
+let hint=""
+
+if(type==="number")
+hint="Wort Hinweis: Buchstabe "+(Math.floor(Math.random()*5)+1)
+
+if(type==="color")
+hint="Zahlen Hinweis: eine Ziffer ist "+numberAnswer[Math.floor(Math.random()*5)]
+
+if(type==="word")
+hint="Farben Hinweis: enthält "+colorAnswer[Math.floor(Math.random()*5)]
+
+hintBox.innerText=hint
+
+checkWin()
+
+}
+
+function checkWin(){
+
+if(solved.word && solved.number && solved.color){
+
+let high=localStorage.getItem("triHigh")
+
+let score=time
+
+if(!high || score>high){
+
+localStorage.setItem("triHigh",score)
+high=score
+
+}
+
+stats.innerHTML=
+
+"Zeit übrig: "+time+"<br>"+
+"Versuche: "+guesses+"<br>"+
+"Highscore: "+high
+
+winscreen.classList.remove("hidden")
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
