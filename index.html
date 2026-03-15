@@ -2,118 +2,52 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>TriWordle Profi</title>
+<title>TriWordle Original Feeling</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
 html,body{
-  margin:0; padding:0;
-  width:100%; height:100%;
-  overflow:hidden;
-  background:#121213;
-  color:white;
-  font-family:Arial,sans-serif;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  margin:0; padding:0; width:100%; height:100%;
+  background:#121213; color:white; font-family:Arial,sans-serif;
+  overflow:hidden; touch-action:none;
+  display:flex; justify-content:center; align-items:center;
 }
 #game{
-  width:95%;
-  max-width:500px;
-  text-align:center;
+  width:95%; max-width:500px; text-align:center;
 }
-h1{
-  font-size:32px;
-  letter-spacing:2px;
-  margin:8px 0;
-}
-#timer{
-  font-size:20px;
-  margin:6px 0;
-  color:#d7dadc;
-}
+h1{font-size:32px; letter-spacing:2px; margin:8px 0;}
+#timer{font-size:20px; margin:6px 0; color:#d7dadc;}
 .tabs button{
-  background:#3a3a3c;
-  border:none;
-  color:white;
-  padding:10px 16px;
-  margin:2px;
-  border-radius:6px;
-  cursor:pointer;
+  background:#3a3a3c; border:none; color:white;
+  padding:10px 16px; margin:2px; border-radius:6px; cursor:pointer;
   font-size:16px;
 }
-.tabs button:hover{
-  background:#565758;
-}
+.tabs button:hover{background:#565758;}
 .board{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:6px;
-  justify-items:center;
-  margin-top:12px;
+  display:grid; grid-template-columns:repeat(5,1fr); gap:3px;
+  justify-items:center; margin-top:12px;
 }
-.tile{
-  width:60px; height:60px;
-  border:2px solid #3a3a3c;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:28px;
-  font-weight:bold;
-  text-transform:uppercase;
-  cursor:pointer;
+.tile, .colorTile{
+  width:60px; height:60px; display:flex; justify-content:center; align-items:center;
+  font-size:28px; font-weight:bold; text-transform:uppercase; cursor:pointer;
 }
+.tile{border:2px solid #3a3a3c;}
+.colorTile{border-radius:6px; border:2px solid #3a3a3c;}
 .green{background:#538d4e;border:none;}
 .yellow{background:#b59f3b;border:none;}
 .gray{background:#3a3a3c;border:none;}
-.colorTile{
-  width:60px; height:60px;
-  border-radius:6px;
-  cursor:pointer;
-  border:2px solid #3a3a3c;
-}
 .keyboard{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(48px,1fr));
-  gap:4px;
-  margin-top:12px;
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(48px,1fr));
+  gap:3px; margin-top:12px;
 }
 .keyboard button{
-  padding:12px;
-  border:none;
-  background:#818384;
-  color:white;
-  font-weight:bold;
-  border-radius:6px;
-  font-size:16px;
-  cursor:pointer;
+  padding:12px; border:none; background:#818384; color:white; font-weight:bold; border-radius:6px; font-size:16px; cursor:pointer;
 }
 .keyboard button:hover{background:#a1a1a1;}
 .hidden{display:none;}
-#hint{
-  min-height:24px;
-  margin-top:8px;
-  color:#6ec1ff;
-  font-size:14px;
-}
-#resultsBoard{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  margin-top:12px;
-}
-#resultsBoard div{
-  margin:6px 0;
-  font-size:18px;
-}
-#restartBtn{
-  margin-top:12px;
-  padding:12px 24px;
-  font-size:18px;
-  cursor:pointer;
-  border:none;
-  border-radius:6px;
-  background:#818384;
-  color:white;
-}
+#hint{min-height:24px; margin-top:8px; color:#6ec1ff; font-size:14px;}
+#resultsBoard{display:flex; flex-direction:column; align-items:center; margin-top:12px;}
+#resultsBoard div{margin:6px 0; font-size:18px;}
+#restartBtn{margin-top:12px; padding:12px 24px; font-size:18px; cursor:pointer; border:none; border-radius:6px; background:#818384; color:white;}
 </style>
 </head>
 <body>
@@ -148,27 +82,17 @@ h1{
 
 <script>
 // --- Variablen ---
-let time=420;
-let guesses=0;
-let solved={word:false,number:false,color:false};
-let failed=false;
-
+let time=420; let guesses=0; let solved={word:false,number:false,color:false}; let failed=false;
 const words=["TIGER","APFEL","STUHL","LAMPE","WOLKE","FLUSS","SCHUH","BLUME","STEIN","GLASS","TRAUM","WALD"];
 const colors=["#FF3B3B","#3B8CFF","#3BFF68","#FFE63B","#B43BFF","#FF8CC0","#FF7D3B"];
-
 let wordAnswer=words[Math.floor(Math.random()*words.length)];
 let numberAnswer=""; for(let i=0;i<5;i++) numberAnswer+=Math.floor(Math.random()*10);
 let colorAnswer=[]; for(let i=0;i<5;i++) colorAnswer.push(colors[Math.floor(Math.random()*colors.length)]);
-
 let rowWord=0,rowNum=0,rowColor=0;
 let guessWord="",guessNum="",guessColor=[];
 
 // --- Timer ---
-let timerInterval=setInterval(()=>{
-  time--;
-  document.getElementById("timer").innerText=time;
-  if(time<=0){endGame(false);}
-},1000);
+let timerInterval=setInterval(()=>{time--; document.getElementById("timer").innerText=time; if(time<=0){endGame(false);}},1000);
 
 // --- Tabs ---
 function tab(name){
@@ -182,7 +106,7 @@ function tab(name){
   if(name==="result") document.getElementById("resultTab").classList.remove("hidden");
 }
 
-// --- Boards erstellen ---
+// --- Boards ---
 function createBoard(board,isColor){
   for(let r=0;r<6;r++){
     for(let c=0;c<5;c++){
@@ -219,7 +143,7 @@ function removeGuess(board,row,col,isColor){
   else if(!isColor && row===rowNum && board.id==="numberBoard" && guessNum[col]) {guessNum=guessNum.substr(0,col)+guessNum.substr(col+1); board.children[row*5+col].innerText="";}
 }
 
-// --- Board Update & Farbe ---
+// --- Update & Farben ---
 function update(board,row,data,isColor){
   for(let i=0;i<5;i++){
     if(isColor) board.children[row*5+i].style.background=data[i]||"#3a3a3c";
@@ -238,55 +162,15 @@ function colorCheck(board,row,guess,answer,isColor){
   }
 }
 
-// --- Wordle Logik ---
-function pressWord(l){
-  if(solved.word || failed) return;
-  if(guessWord.length<5){guessWord+=l; update(document.getElementById("wordBoard"),rowWord,guessWord,false);}
-  if(guessWord.length===5){ guesses++; colorCheck(document.getElementById("wordBoard"),rowWord,guessWord.split(""),wordAnswer.split(""),false); if(guessWord===wordAnswer) solve("word"); rowWord++; guessWord=""; if(rowWord>=6 && !solved.word) endGame(false);}
-}
-function pressNumber(n){
-  if(solved.number || failed) return;
-  if(guessNum.length<5){guessNum+=n; update(document.getElementById("numberBoard"),rowNum,guessNum,false);}
-  if(guessNum.length===5){ guesses++; colorCheck(document.getElementById("numberBoard"),rowNum,guessNum.split(""),numberAnswer.split(""),false); if(guessNum===numberAnswer) solve("number"); rowNum++; guessNum=""; if(rowNum>=6 && !solved.number) endGame(false);}
-}
-function pressColor(c){
-  if(solved.color || failed) return;
-  if(guessColor.length<5){guessColor.push(c); update(document.getElementById("colorBoard"),rowColor,guessColor,true);}
-  if(guessColor.length===5){ guesses++; colorCheck(document.getElementById("colorBoard"),rowColor,guessColor,colorAnswer,true); if(JSON.stringify(guessColor)===JSON.stringify(colorAnswer)) solve("color"); rowColor++; guessColor=[]; if(rowColor>=6 && !solved.color) endGame(false);}
-}
+// --- Logik ---
+function pressWord(l){if(solved.word||failed) return; if(guessWord.length<5){guessWord+=l; update(document.getElementById("wordBoard"),rowWord,guessWord,false);} if(guessWord.length===5){guesses++; colorCheck(document.getElementById("wordBoard"),rowWord,guessWord.split(""),wordAnswer.split(""),false); if(guessWord===wordAnswer) solve("word"); rowWord++; guessWord=""; if(rowWord>=6 && !solved.word) endGame(false);}}
+function pressNumber(n){if(solved.number||failed) return; if(guessNum.length<5){guessNum+=n; update(document.getElementById("numberBoard"),rowNum,guessNum,false);} if(guessNum.length===5){guesses++; colorCheck(document.getElementById("numberBoard"),rowNum,guessNum.split(""),numberAnswer.split(""),false); if(guessNum===numberAnswer) solve("number"); rowNum++; guessNum=""; if(rowNum>=6 && !solved.number) endGame(false);}}
+function pressColor(c){if(solved.color||failed) return; if(guessColor.length<5){guessColor.push(c); update(document.getElementById("colorBoard"),rowColor,guessColor,true);} if(guessColor.length===5){guesses++; colorCheck(document.getElementById("colorBoard"),rowColor,guessColor,colorAnswer,true); if(JSON.stringify(guessColor)===JSON.stringify(colorAnswer)) solve("color"); rowColor++; guessColor=[]; if(rowColor>=6 && !solved.color) endGame(false);}}
 
-// --- Lösung & Hinweise ---
-function solve(type){
-  if(solved[type] || failed) return;
-  solved[type]=true;
-  time+=45;
-  let hintText="";
-  if(type==="number"){ let idx=Math.floor(Math.random()*5); hintText="Zahl-Wordle: Ziffer "+(idx+1)+" = "+numberAnswer[idx];}
-  if(type==="color"){ let idx=Math.floor(Math.random()*5); hintText="Farben-Wordle: Farbe "+(idx+1);}
-  if(type==="word"){ let idx=Math.floor(Math.random()*5); hintText="Wort-Wordle: Buchstabe "+(idx+1)+" = "+wordAnswer[idx];}
-  document.getElementById("hint").innerText=hintText;
-  if(solved.word && solved.number && solved.color) endGame(true);
-}
+function solve(type){if(solved[type]||failed) return; solved[type]=true; time+=45; let hintText=""; if(type==="number"){let idx=Math.floor(Math.random()*5); hintText="Zahl-Wordle: Ziffer "+(idx+1)+" = "+numberAnswer[idx];} if(type==="color"){let idx=Math.floor(Math.random()*5); hintText="Farben-Wordle: Farbe "+(idx+1);} if(type==="word"){let idx=Math.floor(Math.random()*5); hintText="Wort-Wordle: Buchstabe "+(idx+1)+" = "+wordAnswer[idx];} document.getElementById("hint").innerText=hintText; if(solved.word&&solved.number&&solved.color) endGame(true);}
 
-// --- Spiel Ende ---
-function endGame(win){
-  failed=!win;
-  document.getElementById("tabWordBtn").disabled=true;
-  document.getElementById("tabNumberBtn").disabled=true;
-  document.getElementById("tabColorBtn").disabled=true;
-  document.getElementById("tabResultBtn").classList.remove("hidden");
-  tab('result');
-  let results=document.getElementById("resultsBoard");
-  results.innerHTML="";
-  results.innerHTML+="<div>Status: "+(win?"Gewonnen":"Verloren")+"</div>";
-  results.innerHTML+="<div>Zeit übrig: "+time+"</div>";
-  results.innerHTML+="<div>Versuche: "+guesses+"</div>";
-  let high=localStorage.getItem("triHigh");
-  if(win && (!high || time>high)){localStorage.setItem("triHigh",time);high=time;}
-  results.innerHTML+="<div>Highscore: "+high+"</div>";
-}
+function endGame(win){failed=!win; document.getElementById("tabWordBtn").disabled=true; document.getElementById("tabNumberBtn").disabled=true; document.getElementById("tabColorBtn").disabled=true; document.getElementById("tabResultBtn").classList.remove("hidden"); tab('result'); let results=document.getElementById("resultsBoard"); results.innerHTML=""; results.innerHTML+="<div>Status: "+(win?"Gewonnen":"Verloren")+"</div>"; results.innerHTML+="<div>Zeit übrig: "+time+"</div>"; results.innerHTML+="<div>Versuche: "+guesses+"</div>"; let high=localStorage.getItem("triHigh"); if(win&&(!high||time>high)){localStorage.setItem("triHigh",time);high=time;} results.innerHTML+="<div>Highscore: "+high+"</div>";}
 
-// --- Neustart ---
 function restartGame(){location.reload();}
 </script>
 </body>
