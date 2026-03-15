@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>TriWordle Original Feeling</title>
+<title>TriWordle Profi</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
 html,body{
@@ -30,7 +30,7 @@ h1{font-size:32px; letter-spacing:2px; margin:8px 0;}
   width:60px; height:60px; display:flex; justify-content:center; align-items:center;
   font-size:28px; font-weight:bold; text-transform:uppercase; cursor:pointer;
 }
-.tile{border:2px solid #3a3a3c;}
+.tile{border:2px solid #3a3a3c; background:#3a3a3c; color:white;}
 .colorTile{border-radius:6px; border:2px solid #3a3a3c;}
 .green{background:#538d4e;border:none;}
 .yellow{background:#b59f3b;border:none;}
@@ -122,11 +122,11 @@ createBoard(document.getElementById("wordBoard"),false);
 createBoard(document.getElementById("numberBoard"),false);
 createBoard(document.getElementById("colorBoard"),true);
 
-// --- Tastatur ---
+// --- Tastaturen ---
 function keyboard(keys,id,press,isColor){
   keys.forEach(k=>{
     let b=document.createElement("button");
-    if(isColor) b.style.background=k;
+    if(isColor){ b.style.background=k; } else { b.innerText=k; }
     b.onclick=()=>press(k);
     id.appendChild(b);
   });
@@ -167,9 +167,34 @@ function pressWord(l){if(solved.word||failed) return; if(guessWord.length<5){gue
 function pressNumber(n){if(solved.number||failed) return; if(guessNum.length<5){guessNum+=n; update(document.getElementById("numberBoard"),rowNum,guessNum,false);} if(guessNum.length===5){guesses++; colorCheck(document.getElementById("numberBoard"),rowNum,guessNum.split(""),numberAnswer.split(""),false); if(guessNum===numberAnswer) solve("number"); rowNum++; guessNum=""; if(rowNum>=6 && !solved.number) endGame(false);}}
 function pressColor(c){if(solved.color||failed) return; if(guessColor.length<5){guessColor.push(c); update(document.getElementById("colorBoard"),rowColor,guessColor,true);} if(guessColor.length===5){guesses++; colorCheck(document.getElementById("colorBoard"),rowColor,guessColor,colorAnswer,true); if(JSON.stringify(guessColor)===JSON.stringify(colorAnswer)) solve("color"); rowColor++; guessColor=[]; if(rowColor>=6 && !solved.color) endGame(false);}}
 
-function solve(type){if(solved[type]||failed) return; solved[type]=true; time+=45; let hintText=""; if(type==="number"){let idx=Math.floor(Math.random()*5); hintText="Zahl-Wordle: Ziffer "+(idx+1)+" = "+numberAnswer[idx];} if(type==="color"){let idx=Math.floor(Math.random()*5); hintText="Farben-Wordle: Farbe "+(idx+1);} if(type==="word"){let idx=Math.floor(Math.random()*5); hintText="Wort-Wordle: Buchstabe "+(idx+1)+" = "+wordAnswer[idx];} document.getElementById("hint").innerText=hintText; if(solved.word&&solved.number&&solved.color) endGame(true);}
+function solve(type){
+  if(solved[type]||failed) return;
+  solved[type]=true;
+  time+=45;
+  let hintText="";
+  if(type==="word"){ let idx=Math.floor(Math.random()*5); hintText="Hinweis für Zahlen/Farben: Buchstabe "+(idx+1)+" = "+wordAnswer[idx]; }
+  if(type==="number"){ let idx=Math.floor(Math.random()*5); hintText="Hinweis für Wort/Farben: Ziffer "+(idx+1)+" = "+numberAnswer[idx]; }
+  if(type==="color"){ let idx=Math.floor(Math.random()*5); hintText="Hinweis für Wort/Zahlen: Farbe "+(idx+1); }
+  document.getElementById("hint").innerText=hintText;
+  if(solved.word && solved.number && solved.color) endGame(true);
+}
 
-function endGame(win){failed=!win; document.getElementById("tabWordBtn").disabled=true; document.getElementById("tabNumberBtn").disabled=true; document.getElementById("tabColorBtn").disabled=true; document.getElementById("tabResultBtn").classList.remove("hidden"); tab('result'); let results=document.getElementById("resultsBoard"); results.innerHTML=""; results.innerHTML+="<div>Status: "+(win?"Gewonnen":"Verloren")+"</div>"; results.innerHTML+="<div>Zeit übrig: "+time+"</div>"; results.innerHTML+="<div>Versuche: "+guesses+"</div>"; let high=localStorage.getItem("triHigh"); if(win&&(!high||time>high)){localStorage.setItem("triHigh",time);high=time;} results.innerHTML+="<div>Highscore: "+high+"</div>";}
+function endGame(win){
+  failed=!win;
+  document.getElementById("tabWordBtn").disabled=true;
+  document.getElementById("tabNumberBtn").disabled=true;
+  document.getElementById("tabColorBtn").disabled=true;
+  document.getElementById("tabResultBtn").classList.remove("hidden");
+  tab('result');
+  let results=document.getElementById("resultsBoard");
+  results.innerHTML="";
+  results.innerHTML+="<div>Status: "+(win?"Gewonnen":"Verloren")+"</div>";
+  results.innerHTML+="<div>Zeit übrig: "+time+"</div>";
+  results.innerHTML+="<div>Versuche: "+guesses+"</div>";
+  let high=localStorage.getItem("triHigh");
+  if(win && (!high || time>high)){localStorage.setItem("triHigh",time); high=time;}
+  results.innerHTML+="<div>Highscore: "+high+"</div>";
+}
 
 function restartGame(){location.reload();}
 </script>
