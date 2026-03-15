@@ -2,65 +2,118 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>TriWordle</title>
+<title>TriWordle Profi</title>
 <style>
-html, body {
-  margin: 0; padding: 0;
-  height: 100%; width: 100%;
-  display: flex; justify-content: center; align-items: center;
-  background: #121213;
-  color: white;
-  font-family: Arial, sans-serif;
-  overflow: hidden;
+html,body{
+  margin:0; padding:0;
+  width:100%; height:100%;
+  overflow:hidden;
+  background:#121213;
+  color:white;
+  font-family:Arial,sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
-#game {
-  width: 440px;
-  text-align: center;
-  transform: scale(1); /* kann zoom anpassen */
+#game{
+  width:95%;
+  max-width:500px;
+  text-align:center;
 }
-h1 {
-  font-size: 28px; letter-spacing: 2px; margin-bottom: 8px;
+h1{
+  font-size:32px;
+  letter-spacing:2px;
+  margin:8px 0;
 }
-#timer {
-  font-size: 18px; color: #d7dadc; margin-bottom: 8px;
+#timer{
+  font-size:20px;
+  margin:6px 0;
+  color:#d7dadc;
 }
-.tabs button {
-  background: #3a3a3c; border: none; color: white;
-  padding: 6px 12px; margin: 2px; border-radius: 6px; cursor: pointer;
+.tabs button{
+  background:#3a3a3c;
+  border:none;
+  color:white;
+  padding:10px 16px;
+  margin:2px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:16px;
 }
-.tabs button:hover { background: #565758; }
-.board {
-  display: grid;
-  grid-template-columns: repeat(5, 64px);
-  gap: 5px;
-  justify-content: center;
-  margin-top: 12px;
+.tabs button:hover{
+  background:#565758;
 }
-.tile {
-  width: 64px; height: 64px;
-  border: 2px solid #3a3a3c;
-  display: flex; justify-content: center; align-items: center;
-  font-size: 28px; font-weight: bold; text-transform: uppercase;
-  cursor: pointer;
+.board{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+  justify-items:center;
+  margin-top:12px;
 }
-.green { background: #538d4e; border: none; }
-.yellow { background: #b59f3b; border: none; }
-.gray { background: #3a3a3c; border: none; }
-.keyboard {
-  margin-top: 12px;
+.tile{
+  width:60px; height:60px;
+  border:2px solid #3a3a3c;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:28px;
+  font-weight:bold;
+  text-transform:uppercase;
+  cursor:pointer;
 }
-.keyboard button {
-  margin: 2px; padding: 10px; border: none;
-  background: #818384; color: white; font-weight: bold;
-  border-radius: 4px; cursor: pointer;
+.green{background:#538d4e;border:none;}
+.yellow{background:#b59f3b;border:none;}
+.gray{background:#3a3a3c;border:none;}
+.colorTile{
+  width:60px; height:60px;
+  border-radius:6px;
+  cursor:pointer;
+  border:2px solid #3a3a3c;
 }
-.keyboard button:hover { background: #a1a1a1; }
-.hidden { display: none; }
-#hint { min-height: 24px; margin-top: 6px; color: #6ec1ff; font-size: 14px; }
-#resultsBoard { display: flex; flex-direction: column; align-items: center; margin-top: 12px; }
-#resultsBoard div { margin: 6px 0; font-size: 18px; }
-#restartBtn { margin-top: 12px; padding: 10px 20px; font-size: 16px; cursor: pointer; border:none; border-radius:6px; background:#818384; color:white; }
-.colorTile { width: 64px; height: 64px; border-radius: 6px; cursor:pointer; }
+.keyboard{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(48px,1fr));
+  gap:4px;
+  margin-top:12px;
+}
+.keyboard button{
+  padding:12px;
+  border:none;
+  background:#818384;
+  color:white;
+  font-weight:bold;
+  border-radius:6px;
+  font-size:16px;
+  cursor:pointer;
+}
+.keyboard button:hover{background:#a1a1a1;}
+.hidden{display:none;}
+#hint{
+  min-height:24px;
+  margin-top:8px;
+  color:#6ec1ff;
+  font-size:14px;
+}
+#resultsBoard{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-top:12px;
+}
+#resultsBoard div{
+  margin:6px 0;
+  font-size:18px;
+}
+#restartBtn{
+  margin-top:12px;
+  padding:12px 24px;
+  font-size:18px;
+  cursor:pointer;
+  border:none;
+  border-radius:6px;
+  background:#818384;
+  color:white;
+}
 </style>
 </head>
 <body>
@@ -207,7 +260,6 @@ function solve(type){
   if(solved[type] || failed) return;
   solved[type]=true;
   time+=45;
-  // dynamische Hinweise: noch nicht grüne Stellen
   let hintText="";
   if(type==="number"){ let idx=Math.floor(Math.random()*5); hintText="Zahl-Wordle: Ziffer "+(idx+1)+" = "+numberAnswer[idx];}
   if(type==="color"){ let idx=Math.floor(Math.random()*5); hintText="Farben-Wordle: Farbe "+(idx+1);}
